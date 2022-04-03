@@ -1,93 +1,124 @@
+// ひらがな for default UTF-8 type
 package CalendarSystem;
 
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class mySystem {
+	
+	private Scanner in;
+	private PrintStream printStream;
+
+	public mySystem(InputStream inputStream, PrintStream printStream) {
+	      this.in = new Scanner(inputStream);
+	      this.printStream = printStream;
+	}
 	/***
-	 * 印出指定年月的日曆
-	 * @param Year 年
-	 * @param Month 月
-	 * @return none
-	 *  * Example: mySystem.printCalendar(2022, 3): print calendar of this date
-	 * Time estimate: O(n)
+	 * Print out the desired monthly calendar
+	 * 
+	 * @param Year:	desired year
+	 * @param Month: desired month
+	 * @return output: formatted calendar 
+	 * * Example: mySystem.printCalendar(2022, 3): return
+	 * 	 calendar string of this month 
+	 * * Time estimate: O(1)
 	 */
-	public  String printCalendar(int Year, int Month) {
+	public String printCalendar(int Year, int Month) {
+		
+		// initialize the variable to utilize
 		int year = Year;
 		int month = Month;
 		String output;
-		// input
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(year, month - 1, 1);
-		int startDay = calendar.get(Calendar.DAY_OF_WEEK); 
-		int count = startDay - 1; 
-		int maxDay = maxDayInMonth(year, month);
+		
+		// check the day of start day and fill 
+		// space before it in the returned string
+		int startDay = calendar.get(Calendar.DAY_OF_WEEK);
+		int count = startDay - 1;
 		output = "Sun Mon Tue Wed Thu Fri Sat\n";
 		output += fillSpace(startDay);
-		for (int i = 1; i <= maxDay; i++) {
-			output += i>9?" ":"  ";
+		
+		// fill in the date number in the returned string
+		int maxDay = maxDayInMonth(year, month);
+		for (int i = 1; i <= maxDay; i++) { 
+			output += i > 9 ? " " : "  ";
 			output += i;
 			output += " ";
 			count++;
-			if (count >= 7) { 
+			if (count >= 7) {
 				count = 0;
 				output += "\n";
 			}
 		}
+		
 		return output;
 	}
+	
 	/***
-	 * 在本月的起始天之前加入空格
-	 * @param startDay 起始日期
-	 * @return none
-	 *  * Example: mySystem.fillSpace(6): print 4*5 spaces
-	 *  Time estimate: O(n)
+	 * Giving the appropriate spaces according to start day
+	 * 
+	 * @param startDay: desired start day
+	 * @return output: space string
+	 * * Example: mySystem.fillSpace(6): return 4*5 spaces string
+	 * * Time estimate: O(n)
 	 */
-	private   String fillSpace(int startDay) {
+	private String fillSpace(int startDay) {
 		String output = "";
 		for (int i = 1; i < startDay; i++) {
 			output += "    ";
 		}
 		return output;
 	}
+	
 	/***
-	 * 查詢這個月份最多有幾天
-	 * @param year 年
-	 * @param month 月
-	 * @return max 是該月的最大天數
-	 * Time estimate: O(1)
+	 * Check the max number of day of given month
+	 * 
+	 * @param Year: desired year
+	 * @param Month: desired month
+	 * @return max: the max number of day of given month
+	 * * Example: mySystem.maxDayInMonth(2000, 2): return 29
+	 * * Time estimate: O(1)
 	 */
-	public  int maxDayInMonth(int year, int month) {
+	private int maxDayInMonth(int Year, int Month) {
 		int max = 30;
-		if (month == 1 | month == 3 | month == 5 | month == 7 | month == 8 | month == 10 | month == 12)
+		if (Month == 1 | Month == 3 | Month == 5 | Month == 7 | Month == 8 | Month == 10 | Month == 12)
 			max = 31;
-		else if (month == 2 & (year % 4 == 0) && (year % 100 != 0) || (year % 400 == 0))
+		else if (Month == 2 & (Year % 4 == 0) && (Year % 100 != 0) || (Year % 400 == 0))
 			max = 29;
-		else if (month == 2)
+		else if (Month == 2)
 			max = 28;
 		return max;
 	}
+
 	/***
-	 * 輸入日期字串
+	 * Get the date string input by user
+	 * 
 	 * @param none
-	 * @return 日期字串
-	 * * Example: 請輸入欲查詢日期(年/月/日):2022/1/1:
-	 *   return "2022/1/1"
-	 * Time estimate: O(1)
+	 * @return str: the string user text on console
+	 * * Example: user input: 2022/1/1 return "2022/1/1" 
+	 * * Time estimate: O(1)
 	 */
 	public String getDateString() {
-		System.out.print("請輸入欲查詢日期(年/月/日):");
-		Scanner in = new Scanner(System.in);
+		printStream.print("請輸入欲查詢日期(年/月/日):");
 		String str = in.nextLine();
+		while(validDate(str) == false) {
+			printStream.print("請輸入欲查詢日期(年/月/日):");
+			str = in.nextLine();
+		}
 		return str;
 	}
+
 	/***
-	 * 判斷日期字串是不是合法，是return true，不是return false
-	 * @param str
-	 * @return whether the date string is valid
-	 * * Example: mySystem.validDate("2022/13/1"): false
-	 * Time estimate: O(1)
+	 * Check if the date string is valid
+	 * 
+	 * @param str: giving string
+	 * @return true when valid, false when invlaid
+	 * * Example: mySystem.validDate("2022/13/1"): false 
+	 * * Time estimate: O(1)
 	 */
 	public boolean validDate(String str) {
 		int cntSlash = 0;
@@ -104,61 +135,88 @@ public class mySystem {
 			num[2] = Integer.parseInt(tokens[2]);
 			if (num[1] > 12 || num[2] > maxDayInMonth(num[0], num[1]))
 				return false;
-			else return true;
+			else
+				return true;
 		}
 	}
-	/*** 判斷日期是否合法，如果合法便印出該日期的日曆，否則便要求用戶重新輸入
-	 * @param none
-	 * @return none
-	 * * Example: 請輸入欲查詢日期(年/月/日): 2022/03/26: 輸出對應月曆
-	 * Time estimate: O(n)
-	 */
-	public String funcA() {
-		String str = getDateString();
-		String output = "";
-		if(validDate(str)) {
-			String[] tokens = str.split("/");
-			int[] num = new int[3];
-			num[0] = Integer.parseInt(tokens[0]);
-			num[1] = Integer.parseInt(tokens[1]);
-				output += printCalendar(num[0], num[1]);
-				output += "\n";
-			}
-		else {
-			funcA();
-		}
-		return output;
-	}
+	
 	/***
-	 * 判斷年份是否合法，如果合法便印出該年對應的天干地支生肖，否則要求用戶重新輸入
+	 * Get the year string input by user
+	 * 
 	 * @param none
-	 * @return none
-	 * * Example: 請輸入欲查詢年:2022: 輸出"2022是壬寅年，屬虎"
-	 * Time estimate: O(1)
+	 * @return str: the string user text on console
+	 * * Example: user input: 2022 return "2022" 
+	 * * Time estimate: O(1)
 	 */
-	public String funcB() {
-		String output = "";
-		System.out.print("請輸入欲查詢年:");
-		Scanner in = new Scanner(System.in);
-		String input = in.next();
-//		in.close();
-		int y;
+	public String getYearString() {
+		printStream.print("請輸入欲查詢年:");
+		String input = in.nextLine();
+		while(isNumeric(input) == false) {
+			printStream.print("請輸入欲查詢年:");
+			input = in.nextLine();
+		}
+		return input;
+	}
+	
+	/***
+	 * Check if the string is numeric
+	 * 
+	 * @param str: giving string
+	 * @return true when is numeric, or false
+	 * * Example: mySystem.isNumeric("2000."): return false
+	 * * Time estimate: O(1)
+	 */
+	public boolean isNumeric(String str) {
 		try {
-			y = Integer.parseInt(input);
+			Integer.parseInt(str);
+			return true;
 		} catch (NumberFormatException e) {
-			funcB();
-			return output;
+			return false;
 		}
-		int key = (y - 3) % 60;
-		output += y + "是" + searchA(key) + searchB(key) + "\n";
-		return output;
 	}
+
 	/***
-	 * 利用key查詢該年的天干並印出
-	 * @param key 公式的解
-	 * @return none
-	 * * Example: mySystem.searchA(5): 輸出"戊"
-	 * Time estimate: O(1)
+	 * Acquire the date string and output the desired monthly calendar string
+	 * 
+	 * @param none
+	 * @return none  
+	 * * Example: mySystem.funcA(): input("2022/1/1"): output monthly calendar 
+	 * *Time estimate: O(1)
+	 */
+	public void funcA() {
+		String str = getDateString();
+		String[] tokens = str.split("/");
+		int[] num = new int[3];
+		num[0] = Integer.parseInt(tokens[0]);
+		num[1] = Integer.parseInt(tokens[1]);
+		printStream.println(printCalendar(num[0], num[1]));
+	}
+
+	/***
+	 * Acquire the year string and output the yearly 
+	 * heavenly-stem and earthly-branch string
+	 * 
+	 * @param none
+	 * @return none 
+	 * * Example: mySystem.funcB(): input("2022"):
+	 * output: "2022是壬寅年，屬虎"
+	 * * Time estimate: O(1)
+	 */
+	public void funcB() {
+		String input = getYearString();
+		int y = Integer.parseInt(input);
+		int key = (y - 3) % 60;
+		printStream.println(y + "是" + searchA(key) + searchB(key));
+	}
+
+	/***
+	 * Return a heavenly-stem year string
+	 * by the given keys
+	 * 
+	 * @param key: factor of heavely-stem formula
+	 * @return output: heavenly-stem string 
+	 * * Example: mySystem.searchA(5): return "戊" 
+	 * * Time estimate: O(1)
 	 */
 	private String searchA(int key) {
 		String output = "";
@@ -195,12 +253,15 @@ public class mySystem {
 		}
 		return output;
 	}
+
 	/***
-	 * 利用key查詢該年的地支和生肖並印出
-	 * @param key 公式的解
-	 * @return none
-	 * * Example: mySystem.searchB(5): 輸出"辰年，屬龍"
-	 * Time estimate: O(1)
+	 * Return a earthly-branch year string
+	 * by the given keys
+	 * 
+	 * @param key: factor of earthly-branch formula
+	 * @return output: earthly-branch string 
+	 * * Example: mySystem.searchA(5): return "辰年，屬龍" 
+	 * * Time estimate: O(1)
 	 */
 	private String searchB(int key) {
 		String output = "";
@@ -243,116 +304,112 @@ public class mySystem {
 		}
 		return output;
 	}
+
 	/***
-	 * 判斷輸入日期是否合法，如果合法便印出距離今天幾天，若不合法便要求用戶重新輸入
+	 * Acquire the date string and output the date from today to 
+	 * the added day
+	 * 
 	 * @param none
-	 * @return none
+	 * @return none 
 	 * * Example: mySystem.funcC(): 請輸入欲查詢日期(年/月/日):2022/03/27 :輸出
-	 * "2022/03/27距離今天還有1天"
-	 * Time estimate: O(1)
+	 * 	"2022/03/27距離今天還有1天" 
+	 * * Time estimate: O(1)
 	 */
-	public  void funcC() {
-		System.out.print("請輸入欲查詢日期(年/月/日):");
-		Scanner in = new Scanner(System.in);
-//		in.close();
-		String str = in.nextLine();
-		int cntSlash = 0;
-		for (int i = 0; i < str.length(); i++) {
-			if (str.charAt(i) == '/') {
-				cntSlash++;
-			}
-		}
-		if (cntSlash != 2)
-			funcC();
-		else {
-			String[] tokens = str.split("/");
-			int[] num = new int[3];
-			num[0] = Integer.parseInt(tokens[0]);
-			num[1] = Integer.parseInt(tokens[1]);
-			num[2] = Integer.parseInt(tokens[2]);
-			if (num[1] > 12 || num[2] > maxDayInMonth(num[0], num[1])) {
-				funcC();
-			} else {
-				String date1 = num[0] + "-" + (num[1] > 9 ? num[1] : "0" + num[1]) + "-"
-						+ (num[2] > 9 ? num[2] : "0" + num[2]);
-				Date d = new Date();
-				Calendar calendar = new GregorianCalendar();
-				calendar.setTime(d);
-				String date2 = calendar.get(Calendar.YEAR) + "-"
-						+ ((calendar.get(Calendar.MONTH) + 1) > 9 ? calendar.get(Calendar.MONTH) + 1
-								: "0" + (calendar.get(Calendar.MONTH) + 1))
-						+ "-" + (calendar.get(Calendar.DAY_OF_MONTH) > 9 ? calendar.get(Calendar.DAY_OF_MONTH)
-								: "0" + calendar.get(Calendar.DAY_OF_MONTH));
-//				System.out.println(date1);
-//				System.out.println(date2);
-				LocalDate date_1 = LocalDate.parse(date1);
-				LocalDate date_2 = LocalDate.parse(date2);
-				System.out.println(str + "距離今天還有" + ChronoUnit.DAYS.between(date_2, date_1) + "天");
-			}
-		}
+	public void funcC() {
+		String str = getDateString();
+		String[] tokens = str.split("/");
+		int[] num = new int[3];
+		num[0] = Integer.parseInt(tokens[0]);			
+		num[1] = Integer.parseInt(tokens[1]);
+		num[2] = Integer.parseInt(tokens[2]);
+				
+		String date1 = num[0] + "-" + (num[1] > 9 ? num[1] : "0" + num[1]) + "-"
+			+ (num[2] > 9 ? num[2] : "0" + num[2]);
+		Date d = new Date();
+		Calendar calendar = new GregorianCalendar();
+		calendar.setTime(d);
+		String date2 = calendar.get(Calendar.YEAR) + "-"
+			+ ((calendar.get(Calendar.MONTH) + 1) > 9 ? calendar.get(Calendar.MONTH) + 1
+			: "0" + (calendar.get(Calendar.MONTH) + 1))
+			+ "-" + (calendar.get(Calendar.DAY_OF_MONTH) > 9 ? calendar.get(Calendar.DAY_OF_MONTH)
+			: "0" + calendar.get(Calendar.DAY_OF_MONTH));
+		LocalDate date_1 = LocalDate.parse(date1);
+		LocalDate date_2 = LocalDate.parse(date2);
+		printStream.println(str + "距離今天還有" + ChronoUnit.DAYS.between(date_2, date_1) + "天");
 	}
+	
+	
 	/***
 	 * 判斷輸入的天數是否合法，如果合法便輸出往後＃天的日期，如果不合法便要求用戶重新輸入
+	 * 
 	 * @param none
-	 * @return none
+	 * @return none 
 	 * * Example: mySystem.funcD(): 請輸入往後推算的天數：10000 :
-	 * 輸出"往後10000天是2049/08/11"
-	 * Time estimate: O(1)
+	 *         輸出"往後10000天是2049/08/11" 
+	 * * Time estimate: O(1)
 	 */
-	public  void funcD() {
-		System.out.print("請輸入往後推算的天數：");
-		Scanner in = new Scanner(System.in);
-		String input = in.next();
+	public void funcD() {
+		printStream.print("請輸入往後推算的天數:");
+		String input = in.nextLine();
 		int days;
-		try {
-			days = Integer.parseInt(input);
-		} catch (NumberFormatException e) {
-			funcD();
-			return;
+		while(isNumeric(input) == false) {
+			printStream.print("請輸入往後推算的天數:");
+			input = in.nextLine();
 		}
+		days = Integer.parseInt(input);
 		Calendar now = Calendar.getInstance();
 		now.set(Calendar.DATE, now.get(Calendar.DATE) + days);
-		System.out.println("\n往後" + days + "天是" + now.get(Calendar.YEAR) + "/"
+		printStream.println("\n往後" + days + "天是" + now.get(Calendar.YEAR) + "/"
 				+ ((now.get(Calendar.MONTH) + 1) > 9 ? now.get(Calendar.MONTH) + 1
 						: "0" + (now.get(Calendar.MONTH) + 1))
 				+ "/" + (now.get(Calendar.DAY_OF_MONTH) > 9 ? now.get(Calendar.DAY_OF_MONTH)
 						: "0" + now.get(Calendar.DAY_OF_MONTH)));
-
 	}
+	
 	/***
 	 * 日曆系統的菜單
-	 * @param args contains the supplied command-line arguments as an array of String objects.
-	 * @return none
-	 * * Example: 輸入Ａ: call funcA()
-	 * Time estimate: O(n)
+	 * 
+	 * @param none
+	 * @return none 
+	 * * Example: 輸入Ａ: call funcA() 
+	 * * Time estimate: O(1)
 	 */
-	public static void main(String[] args) {
+	public void start() {
 		while (true) {
-			System.out.println("輸入指令號碼或 E(結束使用)?\n");
-			System.out.println("輸入指令:");
-			System.out.println("1): A 顯示該月月曆");
-			System.out.println("2): B 西元轉換干支、生肖");
-			System.out.println("3): C 計算天數");
-			System.out.println("4): D 計算日期");
-			System.out.println("5): E 離開");
-			Scanner in = new Scanner(System.in);
+			printStream.println("輸入指令號碼或 E(結束使用)?\n");
+			printStream.println("輸入指令:");
+			printStream.println("1): A 顯示該月月曆");
+			printStream.println("2): B 西元轉換干支、生肖");
+			printStream.println("3): C 計算天數");
+			printStream.println("4): D 計算日期");
+			printStream.println("5): E 離開");
 			char cmd = in.nextLine().charAt(0);
-//			in.close();
-			mySystem ms = new mySystem(); 
 			if (cmd == 'A') {
-				System.out.print(ms.funcA());
+				funcA();
 			} else if (cmd == 'B') {
-				System.out.print(ms.funcB());
+				funcB();
 			} else if (cmd == 'C') {
-				ms.funcC();
+				funcC();
 			} else if (cmd == 'D') {
-				ms.funcD();
+				funcD();
 			} else if (cmd == 'E') {
 				break;
 			}
 		}
-//	System.out.println("�x�_ϵ�y");
-		System.out.println("離開系統");
-
+		in.close();
+		printStream.println("離開系統");
+	}
+	/***
+	 * Main function 
+	 * 
+	 * @param args contains the supplied command-line arguments as an array of
+	 *             String objects.
+	 * @return none 
+	 * * Example: 輸入Ａ: call funcA() 
+	 * * Time estimate: O(1)
+	 */
+	public static void main(String[] args) {
+		mySystem ms = new mySystem(System.in, System.out);
+		ms.start();
 	}
 }
